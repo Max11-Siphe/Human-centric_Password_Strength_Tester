@@ -1,6 +1,11 @@
 import math
 import string
 
+BITS_TARGET_CEILING = 128
+
+def entropy_percentage_calculator(entropy):
+    return (entropy/BITS_TARGET_CEILING) * 100 
+
 def character_checker(password):
         """ 
             Calculates how secure a password is (E = L * log2(R))
@@ -14,10 +19,6 @@ def character_checker(password):
         uppercase_list = string.printable[36:62]
         special_char_list = string.printable[62:-6]
 
-        # print 
-        print(lowercase_list, len(lowercase_list))
-        print(uppercase_list, len(uppercase_list))
-
         # character booleans
         num_bool = False
         lowercase_bool = False
@@ -29,41 +30,21 @@ def character_checker(password):
         for char in password:
             if char in num_list:
                 num_bool = True
-            elif char in lowercase_bool:
+            elif char in lowercase_list:
                 lowercase_bool = True
-            elif char in uppercase_bool:
+            elif char in uppercase_list:
                 uppercase_bool = True
-            elif char in special_char_bool:
+            elif char in special_char_list:
                 special_char_bool = True
 
-        
+        pool_size = sum([
+            len(num_list) if num_bool else 0,
+            len(uppercase_list) if uppercase_bool else 0,
+            len(lowercase_list) if lowercase_bool else 0,
+            len(special_char_list) if special_char_bool else 0
+        ])
 
-        if num_bool and alpha_bool and special_char_bool:
-            entropy = len(password) * math.log2(len(num_list) + len(uppercase_list) + len(special_char_list))
-        elif num_bool and alpha_bool:
-            entropy = len(password) * math.log2(len(num_list) + len(uppercase_list))
-        elif num_bool:
-            entropy = len(password) * math.log2(len(num_list))
-        elif alpha_bool and special_char_bool:
-            entropy = len(password) * math.log2(len(special_char_list) + len(uppercase_list))
-        elif alpha_bool:
-            entropy = len(password) * math.log2(len(uppercase_list))
-        
-        if num_bool and alpha_bool and special_char_bool:
-            entropy = len(password) * math.log2(len(num_list) + len(lowercase_list) + len(special_char_list))
-        elif num_bool and alpha_bool:
-            entropy = len(password) * math.log2(len(num_list) + len(lowercase_list))
-        elif num_bool:
-            entropy = len(password) * math.log2(len(num_list))
-        elif alpha_bool and special_char_bool:
-            entropy = len(password) * math.log2(len(special_char_list) + len(lowercase_list))
-        elif alpha_bool:
-            entropy = len(password) * math.log2(len(lowercase_list))
-
-        elif special_char_bool and num_bool:
-            entropy = len(password) * math.log2(len(special_char_list) + len(num_list))
-        elif special_char_bool:
-            entropy = len(password) * math.log2(len(special_char_list))
+        entropy = len(password) * math.log2(pool_size)
 
         return entropy
 
