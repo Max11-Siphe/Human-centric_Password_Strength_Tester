@@ -1,7 +1,17 @@
 import math
 import string
 
+# maximum number of bits (standardized)
 BITS_TARGET_CEILING = 128
+
+LEET_REVERSE_MAP = {
+    '@': ['a', 'o'],
+    '!': ['i', 'l', '1'],
+    '1': ['i', 'l', 't'],
+    '3': ['e'], '4': ['a'],
+    '0': ['o'], '5': ['s'],
+    '7': ['t'], '$': ['s']
+}
 
 def entropy_percentage_calculator(entropy):
     return (entropy/BITS_TARGET_CEILING) * 100 
@@ -47,6 +57,16 @@ def character_checker(password):
         entropy = len(password) * math.log2(pool_size)
 
         return entropy
+    
+# Human Friction Metrics Functions
+def diff_char_friction(password):
+    pass
+
+def ambiguous_char(password):
+    pass
+
+def leetspeak_reverse(password):
+    pass
 
 def main():
     print(character_checker("something"))
