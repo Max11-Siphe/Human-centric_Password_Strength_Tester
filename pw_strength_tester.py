@@ -5,12 +5,32 @@ import string
 BITS_TARGET_CEILING = 128
 
 LEET_REVERSE_MAP = {
-    '@': ['a', 'o'],
+    # Punctuation requested
+    '.': ['i', 'l', 'e'],
+    ',': ['g', 'c', 'j'],
+    
+    # Common Symbols & Numbers
+    '@': ['a', 'o', 'at'],
     '!': ['i', 'l', '1'],
     '1': ['i', 'l', 't'],
-    '3': ['e'], '4': ['a'],
-    '0': ['o'], '5': ['s'],
-    '7': ['t'], '$': ['s']
+    '3': ['e'],
+    '4': ['a', 'h'],
+    '0': ['o'],
+    '5': ['s', 'z'],
+    '7': ['t', 'l'],
+    '$': ['s'],
+    '#': ['h'],
+    '8': ['b', 'b'],
+    '9': ['g', 'p'],
+    '2': ['z', 'r'],
+    '+': ['t'],
+    '^': ['a'],
+    '(': ['c'],
+    '[': ['c'],
+    '<': ['c', 'k'],
+    '%': ['x'],
+    '&': ['and', 'g'],
+    '*': ['a', 'x']
 }
 
 def entropy_percentage_calculator(entropy):
