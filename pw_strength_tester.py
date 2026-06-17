@@ -80,12 +80,31 @@ def character_checker(password):
     
 # Human Friction Metrics Functions
 def diff_char_friction(password):
+    """ 
+        This scores the different characters found in the password.
+        0 pts: lowercase 
+        15 pts: lower + uppercase
+        20 pts: lower + uppercase + numbers
+        40 pts: lower + uppercase + numbers + symbols
+    """
     pass
 
 def ambiguous_char(password):
+    """
+        This score is for if there are ambiguous letters in 1 password.
+        if l and 1 in same password: 15 pts
+    """
     pass
 
 def leetspeak_reverse(password):
+    """
+        This is to check and score if the word with symbols is a real word
+        or if it's random letters.
+        0 pts: Dictionary words/passphrases
+        20 pts: random characters with length < 10
+        35 pts: random characters with 10 <= length <= 14
+        50 pts: random characters with length > 14
+    """
     pass
 
 def main():
