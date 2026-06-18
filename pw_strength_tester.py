@@ -1,6 +1,12 @@
 import math
 import string
 
+# character lists
+NUM_LIST = string.printable[:10]
+LOWERCASE_LIST = string.printable[10:36]
+UPPERCASE_LIST = string.printable[36:62]
+SPECIAL_CHAR_LIST = string.printable[62:-6]
+
 # maximum number of bits (standardized)
 BITS_TARGET_CEILING = 128
 
@@ -36,50 +42,50 @@ LEET_REVERSE_MAP = {
     '*': ['a', 'x']
 }
 
+def character_checker(password):
+    # character booleans
+    num_bool = False
+    lowercase_bool = False
+    uppercase_bool = False
+    special_char_bool = False
+    
+    for char in password:
+        if char in NUM_LIST:
+            num_bool = True
+        elif char in LOWERCASE_LIST:
+            lowercase_bool = True
+        elif char in UPPERCASE_LIST:
+            uppercase_bool = True
+        elif char in SPECIAL_CHAR_LIST:
+            special_char_bool = True
+            
+    return {"num bool": num_bool, "lowercase bool": lowercase_bool, "uppercase bool": uppercase_bool, "special char bool": special_char_bool}
+
 def entropy_percentage_calculator(entropy):
     return (entropy/BITS_TARGET_CEILING) * 100 
 
-def character_checker(password):
+def entropy(password):
         """ 
             Calculates how secure a password is (E = L * log2(R))
             E = entropy in bytes
             L = length of the password
             R = pool of characters
         """
-        # character lists
-        num_list = string.printable[:10]
-        lowercase_list = string.printable[10:36]
-        uppercase_list = string.printable[36:62]
-        special_char_list = string.printable[62:-6]
-
-        # character booleans
-        num_bool = False
-        lowercase_bool = False
-        uppercase_bool = False
-        special_char_bool = False
-
         entropy = 0
 
-        for char in password:
-            if char in num_list:
-                num_bool = True
-            elif char in lowercase_list:
-                lowercase_bool = True
-            elif char in uppercase_list:
-                uppercase_bool = True
-            elif char in special_char_list:
-                special_char_bool = True
+        bool_dict = character_checker(password)
 
         pool_size = sum([
-            len(num_list) if num_bool else 0,
-            len(uppercase_list) if uppercase_bool else 0,
-            len(lowercase_list) if lowercase_bool else 0,
-            len(special_char_list) if special_char_bool else 0
+            len(NUM_LIST) if bool_dict["num bool"] else 0,
+            len(UPPERCASE_LIST) if bool_dict["uppercase bool"] else 0,
+            len(LOWERCASE_LIST) if bool_dict["lowercase bool"] else 0,
+            len(SPECIAL_CHAR_LIST) if bool_dict["special char bool"] else 0
         ])
 
         entropy = len(password) * math.log2(pool_size)
 
-        return entropy
+        # return entropy
+        return str(round(entropy_percentage_calculator(entropy), 0)) + "%"
 
 def points_percentage_calculator(total_points):
     return (total_points/MAXIMUM_POSSIBLE_POINTS) * 100
@@ -94,7 +100,23 @@ def diff_char_friction(password):
         40 pts: lower + uppercase + numbers + symbols
     """
     total_points = 0
-    pass
+    
+    bool_dict = character_checker(password)
+    
+    if bool_dict["lowercase bool"]:
+        pass
+    if bool_dict["uppercase bool"]:
+        total_points += 15
+    if bool_dict["num bool"]:
+        total_points += 5
+    if bool_dict["special char bool"]:
+        total_points += 20
+        
+    total_points += ambiguous_char(password)
+    total_points += leetspeak_reverse(password)
+    
+    return total_points
+    # return str(round(points_percentage_calculator(total_points), 0)) + "%"
 
 def ambiguous_char(password):
     """
