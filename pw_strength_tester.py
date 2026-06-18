@@ -4,6 +4,9 @@ import string
 # maximum number of bits (standardized)
 BITS_TARGET_CEILING = 128
 
+# maximum number of points (according to scoring system)
+MAXIMUM_POSSIBLE_POINTS = 105
+
 LEET_REVERSE_MAP = {
     # Punctuation requested
     '.': ['i', 'l', 'e'],
@@ -77,7 +80,10 @@ def character_checker(password):
         entropy = len(password) * math.log2(pool_size)
 
         return entropy
-    
+
+def points_percentage_calculator(total_points):
+    return (total_points/MAXIMUM_POSSIBLE_POINTS) * 100
+        
 # Human Friction Metrics Functions
 def diff_char_friction(password):
     """ 
@@ -87,6 +93,7 @@ def diff_char_friction(password):
         20 pts: lower + uppercase + numbers
         40 pts: lower + uppercase + numbers + symbols
     """
+    total_points = 0
     pass
 
 def ambiguous_char(password):
