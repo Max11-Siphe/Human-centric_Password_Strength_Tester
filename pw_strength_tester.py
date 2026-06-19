@@ -1,5 +1,6 @@
 import math
 import string
+import itertools
 
 # character lists
 NUM_LIST = string.printable[:10]
@@ -13,8 +14,18 @@ BITS_TARGET_CEILING = 128
 # maximum number of points (according to scoring system)
 MAXIMUM_POSSIBLE_POINTS = 105
 
+# multiple symbols represent 1 character
+MULTI_CHAR_LEET = {
+    "|\\/|": "m",
+    "\\/": "v",
+    "\\/\\/": "w",
+    "|/|": "n",
+    "(_)": "u",
+    "|*|": "h",
+}
+
 LEET_REVERSE_MAP = {
-    # Punctuation requested
+    # Punctuations
     '.': ['i', 'l', 'e'],
     ',': ['g', 'c', 'j'],
     
@@ -29,7 +40,7 @@ LEET_REVERSE_MAP = {
     '7': ['t', 'l'],
     '$': ['s'],
     '#': ['h'],
-    '8': ['b', 'b'],
+    '8': ['b'],
     '9': ['g', 'p'],
     '2': ['z', 'r'],
     '+': ['t'],
@@ -117,6 +128,31 @@ def diff_char_friction(password):
     
     return total_points
     # return str(round(points_percentage_calculator(total_points), 0)) + "%"
+    
+
+def leet_word_translator(password):
+    password_copy = password
+    for key, value in MULTI_CHAR_LEET.values():
+        if key in password:
+            password_copy.replace(key, value)
+            
+    return password_copy
+
+def possible_words_creator(copy_of_password):
+    copy_of_password = copy_of_password.lower()
+    password_matrix = []
+    
+    for char in copy_of_password:
+        if char in LEET_REVERSE_MAP:
+            options = [char] + LEET_REVERSE_MAP[char]
+        else:
+            options = [char]
+        password_matrix.append(options)
+        
+    all_combinations = itertools.product(*password_matrix)
+    all_possible_words_set = {"".join(combo) for combo in all_combinations}
+    
+    return all_possible_words_set
 
 def ambiguous_char(password):
     """
@@ -137,7 +173,9 @@ def leetspeak_reverse(password):
     pass
 
 def main():
-    print(character_checker("something"))
+    pw = "p03sk@k3r"
+    print(character_checker(pw))
+    print(possible_words_creator(pw))
 
 
 if __name__ == "__main__":
