@@ -1,6 +1,7 @@
 import math
 import string
 import itertools
+import english_words
 
 # character lists
 NUM_LIST = string.printable[:10]
@@ -173,8 +174,9 @@ def leetspeak_reverse(password):
     pass
 
 def main():
-    pw = "p03sk@k3r"
-    print(character_checker(pw))
+    pw = "po3sK@ker"
+    print(entropy(pw))
+    print()
     print(possible_words_creator(pw))
 
 
