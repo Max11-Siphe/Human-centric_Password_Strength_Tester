@@ -15,6 +15,9 @@ BITS_TARGET_CEILING = 128
 # maximum number of points (according to scoring system)
 MAXIMUM_POSSIBLE_POINTS = 105
 
+# english dictionary
+DICTIONARY = english_words.get_english_words_set(['web2'], lower=True)
+
 # multiple symbols represent 1 character
 MULTI_CHAR_LEET = {
     "|\\/|": "m",
@@ -133,7 +136,7 @@ def diff_char_friction(password):
 
 def leet_word_translator(password):
     password_copy = password
-    for key, value in MULTI_CHAR_LEET.values():
+    for key, value in MULTI_CHAR_LEET.items():
         if key in password:
             password_copy.replace(key, value)
             
@@ -155,6 +158,14 @@ def possible_words_creator(copy_of_password):
     
     return all_possible_words_set
 
+def actual_words(word_set):
+    final_words = []
+    for word in word_set:
+        if word in DICTIONARY:
+            final_words.append(word)
+
+    return final_words
+
 def ambiguous_char(password):
     """
         This score is for if there are ambiguous letters in 1 password.
@@ -174,10 +185,11 @@ def leetspeak_reverse(password):
     pass
 
 def main():
-    pw = "ehdrfntifcbckjnckncjecerfjkbrfrlcnbfkbvlrkvjb30"
+    pw = "p0e$K@ker"
     print(entropy(pw))
     print()
-    print(possible_words_creator(pw))
+    pw_copy = leet_word_translator(pw)
+    print(possible_words_creator(pw_copy))
 
 
 if __name__ == "__main__":
