@@ -97,7 +97,7 @@ def entropy(password):
         entropy = len(password) * math.log2(pool_size)
 
         # return entropy
-        return str(round(entropy_percentage_calculator(entropy), 0)) + "%"
+        return str(min(100 ,round(entropy_percentage_calculator(entropy)))) + "%"
 
 def points_percentage_calculator(total_points):
     return (total_points/MAXIMUM_POSSIBLE_POINTS) * 100
@@ -174,7 +174,7 @@ def leetspeak_reverse(password):
     pass
 
 def main():
-    pw = "po3sK@ker"
+    pw = "ehdrfntifcbckjnckncjecerfjkbrfrlcnbfkbvlrkvjb30"
     print(entropy(pw))
     print()
     print(possible_words_creator(pw))
