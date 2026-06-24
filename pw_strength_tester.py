@@ -163,6 +163,8 @@ def actual_words(word_set):
     for word in word_set:
         if word in DICTIONARY:
             final_words.append(word)
+        # elif word.isalpha():
+        #     final_words.append(word)
 
     return final_words
 
@@ -185,11 +187,11 @@ def leetspeak_reverse(password):
     pass
 
 def main():
-    pw = "p0e$K@ker"
+    pw = "M@xwell11"
     print(entropy(pw))
     print()
     pw_copy = leet_word_translator(pw)
-    print(possible_words_creator(pw_copy))
+    print(actual_words(possible_words_creator(pw_copy)))
 
 
 if __name__ == "__main__":
