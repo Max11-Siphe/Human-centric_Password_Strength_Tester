@@ -3,6 +3,7 @@ import string
 import itertools
 import geonamescache
 import english_words
+import dateparser
 from names_dataset import NameDataset
 
 # This is the Dataset for Most of the Names in the World
@@ -212,12 +213,29 @@ def leetspeak_reverse(password):
     """
     pass
 
+# def possible_date_password(word_set):
+#     found_dates = set()
+    
+#     # Check each decoded string combination
+#     for phrase in word_set:
+#         parsed_date = dateparser.parse(phrase, settings={'STRICT_PARSING': True})
+        
+#         if parsed_date:
+#             # Format cleanly to YYYY-MM-DD
+#             found_dates.add(parsed_date.strftime('%Y-%m-%d'))
+            
+#     return found_dates
+
 def main():
-    pw = "11 $3p7Em83r 2oz6"
+    pw = "11 $3p7Em83r 2026"
     print(entropy(pw))
     print()
     pw_copy = leet_word_translator(pw)
     print(possible_words_creator(pw_copy))
+    print()
+    # print([x for x in possible_words_creator(pw_copy) if "september" in x])
+    # print(possible_date_password(possible_words_creator(pw_copy)))
+    # print()
     print(actual_words(possible_words_creator(pw_copy)))
     
 
