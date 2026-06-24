@@ -1,7 +1,24 @@
 import math
 import string
 import itertools
+import geonamescache
 import english_words
+from names_dataset import NameDataset
+
+# This is the Dataset for Most of the Names in the World
+nd = NameDataset()
+
+# Initialize the offline geography cache
+gc = geonamescache.GeonamesCache()
+GLOBAL_PLACES = set()
+
+# Load cities (with a population over 15,000 to keep lookups fast)
+for city_id, city_info in gc.get_cities().items():
+    GLOBAL_PLACES.add(city_info['name'].lower())
+    
+# Load country names
+for country_code, country_info in gc.get_countries().items():
+    GLOBAL_PLACES.add(country_info['name'].lower())
 
 # character lists
 NUM_LIST = string.printable[:10]
@@ -32,6 +49,7 @@ LEET_REVERSE_MAP = {
     # Punctuations
     '.': ['i', 'l', 'e'],
     ',': ['g', 'c', 'j'],
+    '-': [' ', '-'],
     
     # Common Symbols & Numbers
     '@': ['a', 'o', 'at'],
@@ -39,14 +57,14 @@ LEET_REVERSE_MAP = {
     '1': ['i', 'l', 't'],
     '3': ['e'],
     '4': ['a', 'h'],
-    '0': ['o'],
+    '0': ['o', '0'],
     '5': ['s', 'z'],
     '7': ['t', 'l'],
     '$': ['s'],
     '#': ['h'],
     '8': ['b'],
     '9': ['g', 'p'],
-    '2': ['z', 'r'],
+    '2': ['z', 'r', '2'],
     '+': ['t'],
     '^': ['a'],
     '(': ['c'],
@@ -158,13 +176,21 @@ def possible_words_creator(copy_of_password):
     
     return all_possible_words_set
 
+def substring_finder(clean_password):
+    new_word = ''.join([x for x in clean_password if x.isalpha() or x == " "])
+    new_list = []
+    
+    if new_word in nd.first_names.keys() or new_word in nd.last_names.keys():
+        new_list.append(new_word)
+        
+    return True if len(new_list) != 0 else False
+
 def actual_words(word_set):
     final_words = []
     for word in word_set:
-        if word in DICTIONARY:
+        name = substring_finder(word)
+        if word in DICTIONARY or word in GLOBAL_PLACES or name:
             final_words.append(word)
-        # elif word.isalpha():
-        #     final_words.append(word)
 
     return final_words
 
@@ -187,12 +213,13 @@ def leetspeak_reverse(password):
     pass
 
 def main():
-    pw = "M@xwell11"
+    pw = "11 $3p7Em83r 2oz6"
     print(entropy(pw))
     print()
     pw_copy = leet_word_translator(pw)
+    print(possible_words_creator(pw_copy))
     print(actual_words(possible_words_creator(pw_copy)))
-
+    
 
 if __name__ == "__main__":
     main()
