@@ -3,7 +3,7 @@ import string
 import itertools
 import geonamescache
 import english_words
-import dateparser
+import calendar
 from names_dataset import NameDataset
 
 # This is the Dataset for Most of the Names in the World
@@ -11,6 +11,8 @@ nd = NameDataset()
 
 # Initialize the offline geography cache
 gc = geonamescache.GeonamesCache()
+
+print("Loading offline geographic database...")
 GLOBAL_PLACES = set()
 
 # Load cities (with a population over 15,000 to keep lookups fast)
@@ -20,6 +22,12 @@ for city_id, city_info in gc.get_cities().items():
 # Load country names
 for country_code, country_info in gc.get_countries().items():
     GLOBAL_PLACES.add(country_info['name'].lower())
+    
+print("Database loaded successfully.")
+
+# Get all standard calendar values
+MONTHS = [calendar.month_name[i].lower() for i in range(1, 13)]
+SHORT_MONTHS = [calendar.month_abbr[i].lower() for i in range(1, 13)]
 
 # character lists
 NUM_LIST = string.printable[:10]
@@ -181,7 +189,7 @@ def substring_finder(clean_password):
     new_word = ''.join([x for x in clean_password if x.isalpha() or x == " "])
     new_list = []
     
-    if new_word in nd.first_names.keys() or new_word in nd.last_names.keys():
+    if new_word in nd.first_names.keys() or new_word in nd.last_names.keys() or new_word in GLOBAL_PLACES or new_word in MONTHS or new_word in SHORT_MONTHS:
         new_list.append(new_word)
         
     return True if len(new_list) != 0 else False
@@ -190,7 +198,7 @@ def actual_words(word_set):
     final_words = []
     for word in word_set:
         name = substring_finder(word)
-        if word in DICTIONARY or word in GLOBAL_PLACES or name:
+        if word in DICTIONARY or word in GLOBAL_PLACES or name or word in MONTHS or word in SHORT_MONTHS:
             final_words.append(word)
 
     return final_words
@@ -213,29 +221,13 @@ def leetspeak_reverse(password):
     """
     pass
 
-# def possible_date_password(word_set):
-#     found_dates = set()
-    
-#     # Check each decoded string combination
-#     for phrase in word_set:
-#         parsed_date = dateparser.parse(phrase, settings={'STRICT_PARSING': True})
-        
-#         if parsed_date:
-#             # Format cleanly to YYYY-MM-DD
-#             found_dates.add(parsed_date.strftime('%Y-%m-%d'))
-            
-#     return found_dates
-
 def main():
-    pw = "11 $3p7Em83r 2026"
+    pw = "$3p7Em83r"
     print(entropy(pw))
     print()
     pw_copy = leet_word_translator(pw)
     print(possible_words_creator(pw_copy))
     print()
-    # print([x for x in possible_words_creator(pw_copy) if "september" in x])
-    # print(possible_date_password(possible_words_creator(pw_copy)))
-    # print()
     print(actual_words(possible_words_creator(pw_copy)))
     
 
