@@ -41,6 +41,9 @@ BITS_TARGET_CEILING = 128
 # maximum number of points (according to scoring system)
 MAXIMUM_POSSIBLE_POINTS = 105
 
+# Dictionary entropy cap
+DICTIONARY_MATCH_ENTROPY_CAP = 20
+
 # english dictionary
 DICTIONARY = english_words.get_english_words_set(['web2'], lower=True)
 
@@ -58,7 +61,7 @@ LEET_REVERSE_MAP = {
     # Punctuations
     '.': ['i', 'l', 'e'],
     ',': ['g', 'c', 'j'],
-    '-': [' ', '-'],
+    '-': [' '],
     
     # Common Symbols & Numbers
     '@': ['a', 'o', 'at'],
@@ -66,14 +69,14 @@ LEET_REVERSE_MAP = {
     '1': ['i', 'l', 't'],
     '3': ['e'],
     '4': ['a', 'h'],
-    '0': ['o', '0'],
+    '0': ['o'],
     '5': ['s', 'z'],
     '7': ['t', 'l'],
     '$': ['s'],
     '#': ['h'],
     '8': ['b'],
     '9': ['g', 'p'],
-    '2': ['z', 'r', '2'],
+    '2': ['z', 'r'],
     '+': ['t'],
     '^': ['a'],
     '(': ['c'],
@@ -83,6 +86,8 @@ LEET_REVERSE_MAP = {
     '&': ['and', 'g'],
     '*': ['a', 'x']
 }
+
+MAX_LEET_COMBINATIONS = 50_000
 
 def character_checker(password):
     # character booleans
@@ -113,7 +118,8 @@ def entropy(password):
             L = length of the password
             R = pool of characters
         """
-        entropy = 0
+        if len(password) == 0:
+            return "0%"
 
         bool_dict = character_checker(password)
 
@@ -123,11 +129,17 @@ def entropy(password):
             len(LOWERCASE_LIST) if bool_dict["lowercase bool"] else 0,
             len(SPECIAL_CHAR_LIST) if bool_dict["special char bool"] else 0
         ])
+        
+        if pool_size == 0:
+            return "0%"
 
-        entropy = len(password) * math.log2(pool_size)
+        raw_entropy = len(password) * math.log2(pool_size)
 
+        if is_dictionary_match(password):
+            raw_entropy = min(raw_entropy, DICTIONARY_MATCH_ENTROPY_CAP)
+        
         # return entropy
-        return str(min(100 ,round(entropy_percentage_calculator(entropy)))) + "%"
+        return str(min(100 ,round(entropy_percentage_calculator(raw_entropy)))) + "%"
 
 def points_percentage_calculator(total_points):
     return (total_points/MAXIMUM_POSSIBLE_POINTS) * 100
@@ -157,15 +169,14 @@ def diff_char_friction(password):
     total_points += ambiguous_char(password)
     total_points += leetspeak_reverse(password)
     
-    return total_points
-    # return str(round(points_percentage_calculator(total_points), 0)) + "%"
-    
+    # return total_points
+    return str(round(points_percentage_calculator(total_points))) + "%"
 
 def leet_word_translator(password):
     password_copy = password
     for key, value in MULTI_CHAR_LEET.items():
         if key in password:
-            password_copy.replace(key, value)
+            password_copy = password_copy.replace(key, value)
             
     return password_copy
 
@@ -180,6 +191,16 @@ def possible_words_creator(copy_of_password):
             options = [char]
         password_matrix.append(options)
         
+    total_combinations = 1
+    for options in password_matrix:
+        total_combinations *= len(options)
+        if total_combinations > MAX_LEET_COMBINATIONS:
+            best_guess = "".join(
+                opts[1] if len(opts) > 1 else opts[0]
+                for opts in password_matrix
+            )
+            return {copy_of_password, best_guess}
+        
     all_combinations = itertools.product(*password_matrix)
     all_possible_words_set = {"".join(combo) for combo in all_combinations}
     
@@ -189,7 +210,7 @@ def substring_finder(clean_password):
     new_word = ''.join([x for x in clean_password if x.isalpha() or x == " "])
     new_list = []
     
-    if new_word in nd.first_names.keys() or new_word in nd.last_names.keys() or new_word in GLOBAL_PLACES or new_word in MONTHS or new_word in SHORT_MONTHS:
+    if new_word in DICTIONARY or new_word in nd.first_names.keys() or new_word in nd.last_names.keys() or new_word in GLOBAL_PLACES or new_word in MONTHS or new_word in SHORT_MONTHS:
         new_list.append(new_word)
         
     return True if len(new_list) != 0 else False
@@ -203,12 +224,29 @@ def actual_words(word_set):
 
     return final_words
 
+def is_dictionary_match(password):
+    """
+        checks whether the password, once run through
+        the leet-reversal candidate generator, matches a real dictionary
+        word, name, place, or calendar term.
+    """
+    candidates = possible_words_creator(password)
+    return len(actual_words(candidates)) > 0
+
 def ambiguous_char(password):
     """
         This score is for if there are ambiguous letters in 1 password.
         if l and 1 in same password: 15 pts
     """
-    pass
+    
+    for char in password:
+        for key, value in LEET_REVERSE_MAP.items():
+            if char == key:
+                for x in value:
+                    if x != char and x in password:
+                        return 15
+                    
+    return 0
 
 def leetspeak_reverse(password):
     """
@@ -219,16 +257,26 @@ def leetspeak_reverse(password):
         35 pts: random characters with 10 <= length <= 14
         50 pts: random characters with length > 14
     """
-    pass
+    eng_word_list = actual_words(possible_words_creator(password))
+    if password in eng_word_list:
+        return 0
+    elif len(password) < 10:
+        return 20
+    elif 10 <= len(password) <= 14:
+        return 35
+    else:
+        return 50
 
 def main():
-    pw = "$3p7Em83r"
-    print(entropy(pw))
+    pw = "11 $3p7Em8e2 z0z6"
+    print("Entropy:", entropy(pw))
     print()
     pw_copy = leet_word_translator(pw)
-    print(possible_words_creator(pw_copy))
-    print()
+    # print(possible_words_creator(pw_copy))
+    # print()
     print(actual_words(possible_words_creator(pw_copy)))
+    print()
+    print("Human-centric:", diff_char_friction(pw))
     
 
 if __name__ == "__main__":
