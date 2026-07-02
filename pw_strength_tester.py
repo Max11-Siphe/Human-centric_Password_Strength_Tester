@@ -1,4 +1,5 @@
 import math
+import re
 import string
 import itertools
 import geonamescache
@@ -87,7 +88,28 @@ LEET_REVERSE_MAP = {
     '*': ['a', 'x']
 }
 
+# safety cap on the leet-reversal search space
 MAX_LEET_COMBINATIONS = 50_000
+
+LETTER_TO_DIGIT_MAP = {
+    'o': ['0'],
+    'i': ['1'],
+    'l': ['1'],
+    'z': ['2'],
+    'e': ['3'],
+    'a': ['4'],
+    's': ['5'],
+    'g': ['6', '9'],
+    'b': ['6', '8'],
+    't': ['7'],
+    'q': ['9'],
+}
+
+# safety cap for the number of possibilities for calendar values
+MAX_NUMERIC_COMBINATIONS = 5_000
+
+# possible char pool for all days, months and years (entropy cap)
+DATE_MATCH_ENTROPY_CAP = 16
 
 def character_checker(password):
     # character booleans
@@ -137,6 +159,9 @@ def entropy(password):
 
         if is_dictionary_match(password):
             raw_entropy = min(raw_entropy, DICTIONARY_MATCH_ENTROPY_CAP)
+        
+        if is_date_pattern(password):
+            raw_entropy = min(raw_entropy, DATE_MATCH_ENTROPY_CAP)
         
         # return entropy
         return str(min(100 ,round(entropy_percentage_calculator(raw_entropy)))) + "%"
@@ -224,14 +249,82 @@ def actual_words(word_set):
 
     return final_words
 
-def is_dictionary_match(password):
+def get_dictionary_matches(password):
     """
         checks whether the password, once run through
         the leet-reversal candidate generator, matches a real dictionary
         word, name, place, or calendar term.
     """
     candidates = possible_words_creator(password)
-    return len(actual_words(candidates)) > 0
+    return actual_words(candidates)
+
+def is_dictionary_match(password):
+    """ 
+        Returns the length of the possible options in the distionary greater than 0
+    """
+    return len(get_dictionary_matches(password)) > 0
+
+def numeric_candidates(token):
+    """ 
+        given a token (already split on whitespace/separators), tries
+        to read it as a number, treating digits literally and
+        digit-lookalike letters via LETTER_TO_DIGIT_MAP (e.g. "z0z6" ->
+        "2026")
+    """
+    token = token.lower()
+    matrix = []
+    for char in token:
+        if char.isdigit():
+            matrix.append([char])
+        elif char in LETTER_TO_DIGIT_MAP:
+            matrix.append(LETTER_TO_DIGIT_MAP[char])
+        else:
+            return set()
+        
+    total_combinations = 1
+    for options in matrix:
+        total_combinations *= len(options)
+        if total_combinations > MAX_NUMERIC_COMBINATIONS:
+            return {"".join(opts[0] for opts in matrix)}
+        
+    return {"".join(combo) for combo in itertools.product(*matrix)}
+
+def decode_month_candidates(token):
+    """ 
+        reuses the existing symbol->letter leet reversal to check if a
+        token decodes to a month name, e.g. "$3p7Em8e2" -> "september".
+    """
+    candidates = possible_words_creator(token)
+    return {c for c in candidates if c in MONTHS or c in SHORT_MONTHS}
+
+def is_vaild_day(numeric_string):
+    return numeric_string.isdigit() and 1 <= int(numeric_string) <= 31
+
+def is_valid_year(numeric_string):
+    return numeric_string.isdigit() and 1900 <= int(numeric_string) <= 2099
+
+def is_date_pattern(password):
+    """ 
+        detects day + month + year patterns even when disguised with
+        leetspeak in either direction, e.g. "11 $3p7Em8e2 z0z6" ->
+        11 September 2026.
+    """
+    tokens = [t for t in re.split(r'[\s\-_/\.]+', password.strip()) if t]
+    
+    found_day = False
+    found_month = False
+    found_year = False
+    
+    for token in tokens:
+        numeric_versions = numeric_candidates(token)
+        if any(is_vaild_day(n) for n in numeric_versions):
+            found_day = True
+        if any(is_valid_year(n) for n in numeric_versions):
+            found_year = True
+        if decode_month_candidates(token):
+            found_month = True
+            
+    return found_day and found_month and found_year
 
 def ambiguous_char(password):
     """
