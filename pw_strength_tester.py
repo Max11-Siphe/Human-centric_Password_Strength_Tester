@@ -37,7 +37,8 @@ UPPERCASE_LIST = string.printable[36:62]
 SPECIAL_CHAR_LIST = string.printable[62:-6]
 
 # maximum number of bits (standardized)
-BITS_TARGET_CEILING = 128
+# BITS_TARGET_CEILING = 128
+BITS_TARGET_CEILING = 90
 
 # maximum number of points (according to scoring system)
 MAXIMUM_POSSIBLE_POINTS = 105
@@ -47,6 +48,10 @@ DICTIONARY_MATCH_ENTROPY_CAP = 20
 
 # english dictionary
 DICTIONARY = english_words.get_english_words_set(['web2'], lower=True)
+
+# Combined lookup set built once at startup for O(1) membership checks.
+# Used by the word-break DP below — avoids four separate lookups per character.
+WORD_LOOKUP = DICTIONARY | GLOBAL_PLACES | set(MONTHS) | set(SHORT_MONTHS)
 
 # multiple symbols represent 1 character
 MULTI_CHAR_LEET = {
@@ -200,7 +205,7 @@ def diff_char_friction(password):
 def leet_word_translator(password):
     password_copy = password
     for key, value in MULTI_CHAR_LEET.items():
-        if key in password:
+        if key in password_copy:
             password_copy = password_copy.replace(key, value)
             
     return password_copy
@@ -233,12 +238,16 @@ def possible_words_creator(copy_of_password):
 
 def substring_finder(clean_password):
     new_word = ''.join([x for x in clean_password if x.isalpha() or x == " "])
-    new_list = []
+    if not new_word:
+        return False
     
-    if new_word in DICTIONARY or new_word in nd.first_names.keys() or new_word in nd.last_names.keys() or new_word in GLOBAL_PLACES or new_word in MONTHS or new_word in SHORT_MONTHS:
-        new_list.append(new_word)
-        
-    return True if len(new_list) != 0 else False
+    cap = new_word.capitalize()
+    
+    return (
+        new_word in WORD_LOOKUP
+        or cap in nd.first_names
+        or cap in nd.last_names
+    )
 
 def actual_words(word_set):
     final_words = []
@@ -257,6 +266,45 @@ def get_dictionary_matches(password):
     """
     candidates = possible_words_creator(password)
     return actual_words(candidates)
+
+def _word_break_dp(s, min_word_len=3, max_word_len=25):
+    """
+        Something
+    """
+    s = s.lower()
+    n = len(s)
+    
+    if n < min_word_len:
+        return False
+    
+    dp = [False] * (n + 1)
+    dp[0] = True
+    
+    for i in range(1, n + 1):
+        for j in range(max(0, i - max_word_len), i):
+            if (i - j) < min_word_len:
+                continue
+            if dp[j] and s[j:i] in WORD_LOOKUP:
+                dp[i] = True
+                break
+            
+    return dp[n]
+
+def is_passphrase(password):
+    """
+        function to detect all the possible words in a passphrase by
+        removing non alpha characters and checking each word
+    """
+    clean = ''.join(ch for ch in password if ch.isalpha())
+    if len(clean) >= 6 and _word_break_dp(clean):
+        return True
+ 
+    for candidate in possible_words_creator(password):
+        clean_c = ''.join(ch for ch in candidate if ch.isalpha())
+        if len(clean_c) >= 6 and _word_break_dp(clean_c):
+            return True
+ 
+    return False
 
 def is_dictionary_match(password):
     """ 
@@ -351,7 +399,7 @@ def leetspeak_reverse(password):
         50 pts: random characters with length > 14
     """
     eng_word_list = actual_words(possible_words_creator(password))
-    if password in eng_word_list:
+    if password.lower() in eng_word_list:
         return 0
     elif len(password) < 10:
         return 20
