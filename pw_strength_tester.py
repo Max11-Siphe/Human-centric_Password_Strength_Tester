@@ -162,10 +162,12 @@ def entropy(password):
 
         raw_entropy = len(password) * math.log2(pool_size)
 
-        if is_dictionary_match(password):
+        translated = leet_word_translator(password)
+        
+        if is_dictionary_match(translated):
             raw_entropy = min(raw_entropy, DICTIONARY_MATCH_ENTROPY_CAP)
         
-        if is_date_pattern(password):
+        if is_date_pattern(translated):
             raw_entropy = min(raw_entropy, DATE_MATCH_ENTROPY_CAP)
         
         # return entropy
