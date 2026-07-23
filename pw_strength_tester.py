@@ -116,6 +116,9 @@ MAX_NUMERIC_COMBINATIONS = 5_000
 # possible char pool for all days, months and years (entropy cap)
 DATE_MATCH_ENTROPY_CAP = 16
 
+# Characters that require holding Shift
+SHIFT_SYMBOLS = set('~!@#$%^&*()_+{}|:"<>?')
+
 def character_checker(password):
     # character booleans
     num_bool = False
@@ -185,6 +188,8 @@ def diff_char_friction(password):
         20 pts: lower + uppercase + numbers
         40 pts: lower + uppercase + numbers + symbols
     """
+    if len(password) == 0: return "0%"
+    
     total_points = 0
     
     bool_dict = character_checker(password)
@@ -409,6 +414,18 @@ def leetspeak_reverse(password):
         return 35
     else:
         return 50
+    
+def keyboard_shift_transitions(password):
+    def needs_shift(c):
+        return c.isupper() or c in SHIFT_SYMBOLS
+    transitions = 0
+    prev = False
+    for c in password:
+        f = needs_shift(c)
+        if f and not prev:
+            transitions += 1
+        prev = f
+    return transitions
 
 def main():
     pw = "11 $3p7Em8e2 z0z6"
