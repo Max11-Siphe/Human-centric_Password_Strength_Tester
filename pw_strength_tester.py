@@ -490,9 +490,11 @@ def display_password_report(password):
  
     print("=" * 51)
     print(f" INPUT: {password}")
+    print()
     print(f" [\U0001F6E1\uFE0F SECURITY STRENGTH] -> {sec_pct}% ({sec_tier})")
     print(f" \u2022 Math: {sec_math_level} entropy, {pool_size}-character pool, {len(password)} length.")
     print(f" \u2022 Hacker Verdict: {hacker_verdict}")
+    print()
     print(f" [\U0001F9E0 HUMAN FRICTION]    -> {fric_pct}% ({fric_tier})")
     print(f" \u2022 Typing: Requires {shifts} keyboard layout shift{'s' if shifts != 1 else ''}.")
     print(f" \u2022 Memory: {memory_desc}")
@@ -501,15 +503,13 @@ def display_password_report(password):
     
 
 def main():
-    pw = "11 $3p7Em8e2 z0z6"
-    print("Entropy:", entropy(pw))
-    print()
-    pw_copy = leet_word_translator(pw)
-    # print(possible_words_creator(pw_copy))
-    # print()
-    print(actual_words(possible_words_creator(pw_copy)))
-    print()
-    print("Human-centric:", diff_char_friction(pw))
+    test_passwords = ["qXmnZK65rf*&", "11 $3p7Em8e2 z0z6",
+        "correcthorsebatterystaple", "password123",
+    ]
+    
+    for pw in test_passwords:
+        display_password_report(pw)
+        print()
     
 
 if __name__ == "__main__":
