@@ -495,7 +495,7 @@ def display_password_report(password):
     print(f" \u2022 Math: {sec_math_level} entropy, {pool_size}-character pool, {len(password)} length.")
     print(f" \u2022 Hacker Verdict: {hacker_verdict}")
     print()
-    print(f" [\U0001F9E0 HUMAN FRICTION]    -> {fric_pct}% ({fric_tier})")
+    print(f" [\U0001F9E0 HUMAN FRICTION] -> {fric_pct}% ({fric_tier})")
     print(f" \u2022 Typing: Requires {shifts} keyboard layout shift{'s' if shifts != 1 else ''}.")
     print(f" \u2022 Memory: {memory_desc}")
     print(f" \u2022 Verdict: {fric_verdict}")
