@@ -427,6 +427,22 @@ def keyboard_shift_transitions(password):
         prev = f
     return transitions
 
+# PRINTING FUNCTIONALITY
+def _parse_pct(pct_string):
+    return int(pct_string.rstrip('%'))
+
+def _security_tier(pct):
+    if pct >= 90:
+        return "Excellent", "Will take centuries to brute-force.", "High"
+    elif pct >= 75:
+        return "Strong", "Will take years to decades to brute-force.", "High"
+    elif pct >= 50:
+        return "Moderate", "Could be cracked within months by a capable rig.", "Moderate"
+    elif pct >= 25:
+        return "Weak", "Crackable within hours to days.", "Low"
+    else:
+        return "Very Weak", "Crackable almost instantly.", "Low"
+
 def main():
     pw = "11 $3p7Em8e2 z0z6"
     print("Entropy:", entropy(pw))
