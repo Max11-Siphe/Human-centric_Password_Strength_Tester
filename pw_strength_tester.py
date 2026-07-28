@@ -442,6 +442,18 @@ def _security_tier(pct):
         return "Weak", "Crackable within hours to days.", "Low"
     else:
         return "Very Weak", "Crackable almost instantly.", "Low"
+    
+def _friction_tier(pct):
+    if pct >= 80:
+        return "Very High Friction", "User will likely forget this or write it down."
+    elif pct >= 60:
+        return "High Friction", "User may struggle to recall this reliably."
+    elif pct >= 35:
+        return "Moderate Friction", "Reasonably memorable with a bit of effort."
+    elif pct >= 15:
+        return "Low Friction", "Easy enough to remember and type."
+    else:
+        return "Very Low Friction", "Trivial to remember and type."
 
 def main():
     pw = "11 $3p7Em8e2 z0z6"
