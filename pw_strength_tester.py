@@ -461,6 +461,14 @@ def _friction_tier(pct):
         return "Low Friction", "Easy enough to remember and type."
     else:
         return "Very Low Friction", "Trivial to remember and type."
+    
+def memory_hook_description(password):
+    translated = leet_word_translator(password)
+    
+    if is_dictionary_match(translated) or is_passphrase(translated):
+        return "Contains recognizable words or names, offering memory hooks."
+    
+    return "Random string offers zero cognitive hooks."
 
 def main():
     pw = "11 $3p7Em8e2 z0z6"
