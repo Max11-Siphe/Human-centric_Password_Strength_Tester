@@ -470,6 +470,36 @@ def memory_hook_description(password):
     
     return "Random string offers zero cognitive hooks."
 
+def display_password_report(password):
+    bool_dict = character_checker(password)
+    pool_size = sum([
+        len(NUM_LIST) if bool_dict["num bool"] else 0,
+        len(UPPERCASE_LIST) if bool_dict["uppercase bool"] else 0,
+        len(LOWERCASE_LIST) if bool_dict["lowercase bool"] else 0,
+        len(SPECIAL_CHAR_LIST) if bool_dict["special char bool"] else 0
+    ])
+ 
+    sec_pct = _parse_pct(entropy(password))
+    sec_tier, hacker_verdict, sec_math_level = _security_tier(sec_pct)
+ 
+    fric_pct = _parse_pct(diff_char_friction(password))
+    fric_tier, fric_verdict = _friction_tier(fric_pct)
+ 
+    shifts = keyboard_shift_transitions(password)
+    memory_desc = memory_hook_description(password)
+ 
+    print("=" * 51)
+    print(f" INPUT: {password}")
+    print(f" [\U0001F6E1\uFE0F SECURITY STRENGTH] -> {sec_pct}% ({sec_tier})")
+    print(f" \u2022 Math: {sec_math_level} entropy, {pool_size}-character pool, {len(password)} length.")
+    print(f" \u2022 Hacker Verdict: {hacker_verdict}")
+    print(f" [\U0001F9E0 HUMAN FRICTION]    -> {fric_pct}% ({fric_tier})")
+    print(f" \u2022 Typing: Requires {shifts} keyboard layout shift{'s' if shifts != 1 else ''}.")
+    print(f" \u2022 Memory: {memory_desc}")
+    print(f" \u2022 Verdict: {fric_verdict}")
+    print("=" * 51)
+    
+
 def main():
     pw = "11 $3p7Em8e2 z0z6"
     print("Entropy:", entropy(pw))
