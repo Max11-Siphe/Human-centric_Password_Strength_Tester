@@ -416,8 +416,15 @@ def leetspeak_reverse(password):
         return 50
     
 def keyboard_shift_transitions(password):
+    """
+        Counts how many times the user has to press Shift while typing,
+        based on runs of consecutive shift-required characters. A run of "ZK" only
+        counts as one press (Shift held down across both), matching how
+        people actually type.
+    """
     def needs_shift(c):
         return c.isupper() or c in SHIFT_SYMBOLS
+    
     transitions = 0
     prev = False
     for c in password:
