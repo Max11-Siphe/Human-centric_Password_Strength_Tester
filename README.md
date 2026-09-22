@@ -1,5 +1,7 @@
 # Human-Centric Password Strength Tester
 
+WTC Verification Code: WTC-PA7GH3K9
+
 A password strength checker that scores passwords along two axes instead of one: how **secure** a password is against real-world cracking techniques, and how much **friction** it creates for the human who actually has to type and remember it.
 
 Most password checkers only answer the first question. This project treats the second as equally important — a password can be mathematically strong and still a bad password if no human can reliably use it.
